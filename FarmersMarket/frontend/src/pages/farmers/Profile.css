@@ -1,0 +1,145 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body, html {
+    height: 100%;
+    background-color: #ffffff;
+    font-family: Arial, sans-serif;
+  }
+  
+  .profile-container {
+    display: flex;
+    height: 70vh;
+    align-items: center;
+    justify-content: center;
+    margin-top: 80px;
+  }
+  
+  .card {
+    width: 450px;
+    background-color: #efefef;
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.5s;
+    text-align: center;
+  }
+  
+  .image img {
+    transition: all 0.5s;
+    border-radius: 50%;
+  }
+  
+  .card:hover .image img {
+    transform: scale(1.1);
+  }
+  
+  .name {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2a2a2a;
+    margin-top: 15px; 
+    margin-bottom: 20px; 
+  }
+  
+  .btn {
+    height: 140px;
+    width: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    padding:70px;
+    margin-bottom: 20px; /* Add spacing below the button */
+  }
+  
+  .idd {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 20px; /* Add spacing below the ID */
+  }
+  
+  .number {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 5px; /* Add spacing below the number */
+  }
+  
+  .follow {
+    font-size: 12px;
+    font-weight: 500;
+    color: #444444;
+    margin-bottom: 20px; /* Add spacing below the follow text */
+  }
+  
+  .btn1 {
+    height: 40px;
+    width: 150px;
+    border: none;
+    background-color: #000;
+    color: #aeaeae;
+    font-size: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px; /* Add spacing below the button */
+  }
+  
+  .text span,
+  .text p {
+    font-size: 13px;
+    color: #545454;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 10px; /* Add spacing below the text */
+  }
+  
+  .icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Add spacing between icons */
+    margin-top: 20px; /* Add spacing above the icons */
+  }
+  
+  .icons i {
+    font-size: 19px;
+    color: #333;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .icons i:hover {
+    color: #2a774d;
+  }
+  
+  .date {
+    background-color: #ccc;
+    padding: 6px 10px;
+    border-radius: 10px;
+    margin-top: 10px; /* Add spacing above the date */
+  }
+  
+  .section {
+    margin-bottom: 20px; /* Add spacing between sections */
+  }
+  
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2a774d;
+    margin-bottom: 10px; /* Add spacing below the section title */
+  }
+  
+  .section-content {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6; /* Improve readability */
+  }
+  
+  .farm-location {
+    margin-bottom: 20px; /* Add spacing below the farm location */
+  }
+  
+  .description {
+    margin-top: 20px; /* Add spacing above the description */
+  }
