@@ -10,11 +10,11 @@
 .addProductBtn {
   background-color: #2a774d;
   color: white;
-  padding: 6px 12px; /* Reduced padding */
+  padding: 12px 12px; /* Reduced padding */
   font-size: 14px;   /* Smaller text */
   border: none;
   border-radius: 6px;
-  margin: 20px auto;
+  margin: 50px auto;
   display: block;
   font-weight: bold;
   cursor: pointer;

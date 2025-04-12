@@ -1,44 +1,37 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
-import AddProduct from "./AddProduct";
-import Navbar from "../../Components/Navbar"; // Import Navbar
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import styles from "./Product.module.css";
+import Navbar from "../../Components/Navbar";
+import AddProduct from "./AddProduct"; // Ensure this path is correct
 
-const initialProducts = [
-  { id: 1, name: "Tomatoes", price: 200, stock: "In Stock", image: "/assets/tomatoes.jpeg" },
-  { id: 2, name: "Potatoes", price: 100, stock: "In Stock", image: "/assets/potatoes.jpg" },
-  { id: 3, name: "Spinach", price: 8, stock: "In Stock", image: "/assets/spinach.jpg" },
-  { id: 4, name: "Bell Peppers", price: 50, stock: "50 in stock", image: "/assets/peppers.jpg" },
-  { id: 5, name: "Carrots", price: 30, stock: "30 in stock", image: "/assets/carrots.jpg" }
-];
-
-const Product = () => {
-  const location = useLocation();
-  const farmerId = location.state || {};
-  //console.log(farmerId, "Products page")
-  const [products, setProducts] = useState(initialProducts);
+const Products = () => {
+  const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [error, setError] = useState("");
 
-  const handleSaveProduct = (newProduct) => {
-    if (editingProduct) {
-      // Update existing product
-      setProducts(products.map(product =>
-        product.id === editingProduct.id
-          ? { ...newProduct, id: editingProduct.id, stock: `${newProduct.quantity} in stock` }
-          : product
-      ));
-    } else {
-      // Add new product
-      const productWithId = {
-        ...newProduct,
-        id: products.length + 1,
-        stock: `${newProduct.quantity} in stock`
-      };
-      setProducts([...products, productWithId]);
+  const farmerId = localStorage.getItem("farmerId");
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      console.log("Farmer ID:", farmerId); // Debugging: Check the farmerId
+      const response = await axios.post("http://localhost:5000/api/products", { farmerId }); // Sending farmerId in the body
+      console.log("Fetched products:", response.data); // Debugging: Check fetched products
+      setProducts(response.data);
+    } catch (err) {
+      setError("Failed to fetch products");
     }
+  };
+
+
+  const handleSaveProduct = () => {
     setShowForm(false);
     setEditingProduct(null);
+    fetchProducts(); // Refresh the product list after adding or editing a product
   };
 
   const handleEdit = (product) => {
@@ -46,19 +39,27 @@ const Product = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
-    setProducts(products.filter(product => product.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      fetchProducts(); // Refresh the product list after deleting a product
+    } catch (err) {
+      alert("Failed to delete product.");
+    }
   };
 
   return (
     <div className={styles.productsContainer}>
       <Navbar />
+      <h2>Product List</h2>
+
+      {error && <p className={styles.error}>{error}</p>}
 
       <button
         className={styles.addProductBtn}
         onClick={() => {
-          setShowForm(true);
           setEditingProduct(null);
+          setShowForm(true);
         }}
       >
         Add Product
@@ -67,34 +68,44 @@ const Product = () => {
       {showForm && (
         <AddProduct
           farmerId={farmerId}
-          onAddProduct={handleSaveProduct}
-          onClose={() => setShowForm(false)}
+          onClose={() => {
+            setShowForm(false);
+            setEditingProduct(null);
+          }}
           product={editingProduct}
         />
       )}
 
-      <div className={styles.productsGrid}>
-        {products.map((product) => (
-          <div className={styles.productCard} key={product.id}>
-            <img
-              src={product.image || "/assets/default.jpg"}
-              alt={product.name}
-              className={styles.productImage}
-            />
-            <h3>{product.name}</h3>
-            <p className={styles.price}>
-              Price: <span>₹{product.price}</span>
-            </p>
-            <p className={styles.stockStatus}>{product.stock}</p>
-            <div className={styles.productActions}>
-              <button className={styles.editBtn} onClick={() => handleEdit(product)}>Edit</button>
-              <button className={styles.deleteBtn} onClick={() => handleDelete(product.id)}>Delete</button>
+      {products.length === 0 ? (
+        <p className={styles.noProducts}>No products found.</p>
+      ) : (
+        <div className={styles.productsGrid}>
+          {products.map((product) => (
+            <div className={styles.productCard} key={product._id}>
+              <img
+                src={product.image || "/assets/default.jpg"}
+                alt={product.name}
+                className={styles.productImage}
+              />
+              <h3>{product.name}</h3>
+              <p className={styles.price}>
+                Price: <span>₹{product.price}</span>
+              </p>
+              <p className={styles.stockStatus}>{product.stock}</p>
+              <div className={styles.productActions}>
+                <button className={styles.editBtn} onClick={() => handleEdit(product)}>
+                  Edit
+                </button>
+                <button className={styles.deleteBtn} onClick={() => handleDelete(product._id)}>
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default Product;
+export default Products;

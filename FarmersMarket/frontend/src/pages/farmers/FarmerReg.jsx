@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import "./FarmerReg.css";
+import styles from "./FarmerReg.module.css";
 
 const FarmerReg = () => {
-    const [formData, setFormData] = useState({
-        fullName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        phone: "",
-        address: "",
-        aadharNo: "",
-    });
+    // Individual form field states
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [phone, setPhone] = useState("");
+    const [address, setAddress] = useState("");
+    const [aadharNo, setAadharNo] = useState("");
 
-    const [error, setError] = useState("");
-    const [isRegistered, setIsRegistered] = useState(false);
-    const [showOtpField, setShowOtpField] = useState(false);
+    // OTP and flow states
     const [otp, setOtp] = useState("");
     const [serverOtp, setServerOtp] = useState("");
-    const [serverMessage, setServerMessage] = useState("");
-
+    const [showOtpField, setShowOtpField] = useState(false);
     const [otpTimer, setOtpTimer] = useState(120);
     const [timerInterval, setTimerInterval] = useState(null);
 
+    // Other UI states
+    const [error, setError] = useState("");
+    const [serverMessage, setServerMessage] = useState("");
+    const [isRegistered, setIsRegistered] = useState(false);
+
+    // Start OTP timer countdown
     const startOtpTimer = () => {
         const interval = setInterval(() => {
             setOtpTimer((prev) => {
@@ -42,37 +44,49 @@ const FarmerReg = () => {
         setOtpTimer(120);
     };
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
+    // Handle OTP request
     const handleRequestOtp = async (e) => {
         e.preventDefault();
 
-        if (formData.password !== formData.confirmPassword) {
+        if (!fullName || !email || !password || !confirmPassword || !phone || !address || !aadharNo) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
             setError("Passwords do not match!");
             return;
         }
 
-        setError("");
-        try {
-            const res = await axios.post("http://localhost:5000/api/request-otp", {
-                email: formData.email
-            });
+        const trimmedEmail = email.trim();
+        if (!trimmedEmail) {
+            setError("Email cannot be empty");
+            return;
+        }
 
-            setServerOtp(res.data.otp);
-            setShowOtpField(true);
-            startOtpTimer();
-            setServerMessage("OTP sent to your email. Please enter it below.");
+        try {
+            console.log(email)
+            const checkRes = await axios.post("http://localhost:5000/api/check-emailfarmr", { email });
+            if (checkRes.data.exists) {
+                setError("This email is already registered. Please login instead.");
+                setServerMessage("");
+            } else {
+                const otpRes = await axios.get("http://localhost:5000/api/request-otp", { email });
+
+                setServerOtp(otpRes.data.otp);
+                setShowOtpField(true);
+                setError("");
+                setServerMessage("OTP sent to your email. Please enter it below.");
+                startOtpTimer();
+            }
         } catch (err) {
-            console.error("OTP Request Error:", err);
-            setError(err.response?.data?.message || "Failed to request OTP");
+            console.error("Error:", err);
+            setError(err.response?.data?.message || "Something went wrong");
+            setServerMessage("");
         }
     };
 
+    // Handle OTP submission
     const handleOtpSubmit = async (e) => {
         e.preventDefault();
 
@@ -92,8 +106,18 @@ const FarmerReg = () => {
         registerFarmer();
     };
 
+    // Final farmer registration
     const registerFarmer = async () => {
         try {
+            const formData = {
+                fullName,
+                email,
+                password,
+                phone,
+                address,
+                aadharNo,
+            };
+
             const res = await axios.post("http://localhost:5000/api/addfarmer", formData);
             console.log("Farmer Registration:", res.data);
             setIsRegistered(true);
@@ -110,41 +134,52 @@ const FarmerReg = () => {
     }, [timerInterval]);
 
     return (
-        <div className="register-container">
-            <h1>Farmer Registration</h1>
+        <div className={styles["app-container"]}>
+            <div className={styles["farmer-logins-container"]}>
+                <h1>Farmer Registration</h1>
 
-            {!showOtpField && !isRegistered && (
-                <form onSubmit={handleRequestOtp}>
-                    <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" required />
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
-                    <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required />
-                    <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirm Password" required />
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" required />
-                    <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Address" required />
-                    <input type="text" name="aadharNo" value={formData.aadharNo} onChange={handleChange} placeholder="Aadhar Number" required />
+                {!showOtpField && !isRegistered && (
+                    <form onSubmit={handleRequestOtp}>
+                        <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full Name" required />
+                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+                        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm Password" required />
+                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" required />
+                        <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" required />
+                        <input type="text" value={aadharNo} onChange={(e) => setAadharNo(e.target.value)} placeholder="Aadhar Number" required />
 
-                    {error && <p className="error-message">{error}</p>}
-                    {serverMessage && <p className="success-message">{serverMessage}</p>}
+                        {error && (
+                            <p className={styles["error-message"]}>
+                                {error}{" "}
+                                {error.includes("already registered") && (
+                                    <Link to="/farmer-login" className={styles["back-link"]}>
+                                        Login here
+                                    </Link>
+                                )}
+                            </p>
+                        )}
+                        {serverMessage && <p className={styles["success-message"]}>{serverMessage}</p>}
 
-                    <button type="submit">Request OTP</button>
-                </form>
-            )}
+                        <button type="submit">Request OTP</button>
+                    </form>
+                )}
 
-            {showOtpField && !isRegistered && (
-                <form onSubmit={handleOtpSubmit}>
-                    <h3>OTP sent to {formData.email}</h3>
-                    <p>Expires in: {otpTimer} seconds</p>
-                    <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter OTP" required disabled={otpTimer === 0} />
-                    <button type="submit" disabled={otpTimer === 0}>Verify OTP & Register</button>
-                </form>
-            )}
+                {showOtpField && !isRegistered && (
+                    <form onSubmit={handleOtpSubmit}>
+                        <h3>OTP sent to {email}</h3>
+                        <p>Expires in: {otpTimer} seconds</p>
+                        <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter OTP" required disabled={otpTimer === 0} />
+                        <button type="submit" disabled={otpTimer === 0}>Verify OTP & Register</button>
+                    </form>
+                )}
 
-            {isRegistered && (
-                <div>
-                    <p>Registration successful! Click below to login.</p>
-                    <Link to="/farmer-login" className="login-button">Login here</Link>
-                </div>
-            )}
+                {isRegistered && (
+                    <div>
+                        <p className={styles["success-message"]}>Registration successful! Click below to login.</p>
+                        <Link to="/farmer-login" className={styles["back-link"]}>Login here</Link>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

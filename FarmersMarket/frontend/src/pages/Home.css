@@ -1,17 +1,20 @@
-/* Apply background to the entire page */
-body {
+/* Apply background only within .home-container */
+.home-container {
   margin: 0;
   padding: 0;
   height: 100vh; /* Full viewport height */
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: 'Poppins', sans-serif; /* Modern Font */
-  position: relative; /* Required for pseudo-element positioning */
-  overflow: hidden; /* Prevents scrollbars from appearing */
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
 }
 
-body::before {
+/* Background image applied only within .home-container */
+/* Background image applied only within .home-container */
+.home-container::before {
   content: "";
   position: absolute;
   top: 0;
@@ -20,21 +23,24 @@ body::before {
   height: 100%;
   background: url("../assets/farm-bg.jpg") no-repeat center center fixed;
   background-size: cover;
-  opacity: 0.5; /* Adjust opacity here */
-  z-index: -1; /* Places the background behind the content */
+  opacity: 0.6; /* Reduced opacity for more transparency */
+  z-index: -1; /* Places background behind content */
 }
 
-/* Enlarged & Taller Home Container */
-.home-containerr {
+
+/* Home content wrapper */
+.home-content {
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Ensures content is vertically centered */
+  justify-content: center;
   align-items: center;
-  animation: fadeIn 0.8s ease-in-out; /* Smooth animation */
+  animation: fadeIn 0.6s ease-in-out;
+  margin-bottom: 300px;
+ 
 }
 
-/* Fade-in Animation */
+/* Fade-in animation */
 @keyframes fadeIn {
   from {
       opacity: 0;
@@ -45,41 +51,46 @@ body::before {
       transform: translateY(0);
   }
 }
-
-/* Larger and More Stylish Heading */
-h1 {
-  font-size: 3rem;
-  font-weight: bold;
-  color: #10820e; /* Deep Green */
-  margin-bottom: 20px;
-  text-transform: uppercase; /* Stylish effect */
+.logo {
+  width: 180px;
+  height: 100%;
+  animation: fadeIn 0.6s ease-in-out;
 }
 
-/* Subtext Styling */
-p {
-  font-size: 1.3rem;
-  color: #555;
-  margin-bottom: 30px;
-  letter-spacing: 0.5px;
-}
-.subtitlee {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  color: #4f3a3f;
+
+
+/* Large heading */
+.home-content h1 {
+  margin-top:50px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: #1a5e20;
+  text-transform: uppercase;
+  margin-top: 0; 
+  margin-bottom: 20px;/* Prevent default spacing */
 }
 
-/* Button Group Layout */
-.button-groupp {
+/* Subtitle */
+.home-content .subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.0rem;
+  font-weight: 500;
+  color: #1a5e20; /* same as title */
+}
+
+/* Button group */
+.button-group {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 30px;
   flex-wrap: wrap;
   margin-top: 30px;
 }
 
-/* Modern Button Styles */
-.role-buttonn {
-  padding: 15px 35px;
+/* Button styles */
+.role-button {
+  padding: 15px 50px;
   font-size: 1.2rem;
   font-weight: 600;
   color: white;
@@ -88,15 +99,16 @@ p {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
+  width:200px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.role-buttonn:hover {
+.role-button:hover {
   background: linear-gradient(135deg, #2d572c, #4CAF50);
-  transform: scale(1.05); /* Slight Zoom Effect */
+  transform: scale(1.05);
 }
 
-/* Back Link Styling */
+/* Back link */
 .back-link {
   display: block;
   margin-top: 30px;
@@ -110,46 +122,4 @@ p {
 .back-link:hover {
   color: #38713b;
   text-decoration: underline;
-}
-/* Base button styles */
-.btn {
-  padding: 12px 25px; 
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px; 
-  cursor: pointer;
-  transition: all 0.3s ease-in-out; 
-  text-transform: uppercase; 
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
-  outline: none; 
-}
-
-/* Farmer Button (Green) */
-.btn-farmer {
-  background: linear-gradient(145deg, #4CAF50, #388E3C); /* Gradient for a modern look */
-  color: white;
-  box-shadow: 0 6px 15px rgba(72, 189, 63, 0.3); 
-  text-align: center;/* More pronounced shadow */
-}
-
-/* Hover state for Farmer Button */
-.btn-farmer:hover {
-  background: #388E3C;
-  transform: translateY(-4px); /* Slight lift effect */
-  box-shadow: 0 10px 20px rgba(72, 189, 63, 0.4); /* Larger shadow on hover */
-}
-
-/* Consumer Button (Blue) */
-.btn-consumer {
-  background: linear-gradient(145deg, #2196F3, #1976D2); /* Gradient for a modern look */
-  color: white;
-  box-shadow: 0 6px 15px rgba(33, 150, 243, 0.3); /* More pronounced shadow */
-}
-
-/* Hover state for Consumer Button */
-.btn-consumer:hover {
-  background: #1976D2;
-  transform: translateY(-4px); /* Slight lift effect */
-  box-shadow: 0 10px 20px rgba(33, 150, 243, 0.4); /* Larger shadow on hover */
 }

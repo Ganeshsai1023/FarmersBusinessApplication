@@ -2,7 +2,7 @@ const Farmer = require("../Models/Farmer");
 const Consumer = require("../Models/Consumer");
 const Admins = require("../Models/Admin");
 
-// 🚜 Farmer Login
+//farmerlogin
 const loginFarmer = async (req, res) => {
   const { email, password } = req.body;
 
@@ -15,19 +15,35 @@ const loginFarmer = async (req, res) => {
 
   try {
     const farmer = await Farmer.findOne({ email, password });
-    const farmerId = farmer.farmerId;
-    console.log(farmerId);
+
     if (!farmer) {
+      console.log(farmer);
       return res.status(200).json({
         success: false,
         message: "Invalid email or password.",
       });
     }
 
+    if (farmer.isVerified === "Pending") {
+      return res.status(200).json({
+        success: false,
+        message: "Your registration is in pending state.",
+        isVerified: "Pending",
+      });
+    }
+
+    if (farmer.isVerified === "Rejected") {
+      return res.status(200).json({
+        success: false,
+        message: "Your registration is rejected by admin.",
+        isVerified: "Rejected",
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      farmerId,
+      farmerId: farmer.farmerId,
     });
   } catch (error) {
     console.error("Farmer login error:", error);

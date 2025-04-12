@@ -1,7 +1,11 @@
 // import React, { useState, useEffect } from "react";
 // import "./AddProduct.css";
+// import { storage } from "../../firebaseConfig.js";
+// import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
-// const AddProduct = ({ onAddProduct, onClose }) => {
+// const AddProduct = ({ product = null, onClose }) => {
+//   const farmerId = localStorage.getItem("farmerId");
+
 //   const [newProduct, setNewProduct] = useState({
 //     name: "",
 //     category: "",
@@ -13,6 +17,33 @@
 //   });
 
 //   const [imagePreview, setImagePreview] = useState(null);
+//   const [uploading, setUploading] = useState(false);
+
+//   useEffect(() => {
+//     if (product) {
+//       setNewProduct({
+//         name: product.name || "",
+//         category: product.category || "",
+//         description: product.description || "",
+//         price: product.price || "",
+//         quantity: product.stock ? parseInt(product.stock.split(" ")[0]) : "",
+//         contact: product.contact || "",
+//         image: product.image || "",
+//       });
+//       setImagePreview(product.image || null);
+//     } else {
+//       setNewProduct({
+//         name: "",
+//         category: "",
+//         description: "",
+//         price: "",
+//         quantity: "",
+//         contact: "",
+//         image: "",
+//       });
+//       setImagePreview(null);
+//     }
+//   }, [product]);
 
 //   const handleInputChange = (e) => {
 //     setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
@@ -20,53 +51,87 @@
 
 //   const handleImageUpload = (e) => {
 //     const file = e.target.files[0];
-//     if (file) {
-//       const imageUrl = URL.createObjectURL(file);
-//       setNewProduct({ ...newProduct, image: imageUrl });
-//       setImagePreview(imageUrl);
-//     }
+//     if (!file) return;
+
+//     setUploading(true);
+
+//     const storageRef = ref(storage, `product_images/${Date.now()}_${file.name}`);
+//     const uploadTask = uploadBytesResumable(storageRef, file);
+
+//     uploadTask.on(
+//       "state_changed",
+//       null,
+//       (error) => {
+//         console.error("Upload error:", error);
+//         alert("Image upload failed");
+//         setUploading(false);
+//       },
+//       () => {
+//         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+//           setNewProduct((prev) => ({ ...prev, image: downloadURL }));
+//           setImagePreview(downloadURL);
+//           setUploading(false);
+//         });
+//       }
+//     );
 //   };
 
-//   useEffect(() => {
-//     return () => {
-//       // Clean up URL.createObjectURL to avoid memory leaks
-//       if (imagePreview) {
-//         URL.revokeObjectURL(imagePreview);
-//       }
-//     };
-//   }, [imagePreview]);
-
-//   const handleSubmit = (e) => {
+//   const handleSubmit = async (e) => {
 //     e.preventDefault();
-//     const { name, price, quantity, contact, category, description } = newProduct;
-//     if (!name || !price || !quantity || !contact || !category || !description) {
+//     const { name, price, quantity, contact, category, description, image } = newProduct;
+
+//     if (!name || !price || !quantity || !contact || !category || !description || !image) {
 //       alert("Please fill all required fields!");
 //       return;
 //     }
-//     onAddProduct(newProduct);
+
+//     try {
+//       const response = await fetch("http://localhost:5000/api/addproduct", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ ...newProduct, farmerId }),
+//       });
+
+//       const result = await response.json();
+
+//       if (response.ok) {
+//         alert("Product added successfully!");
+//         if (onClose) onClose();
+//       } else {
+//         alert(result.message || "Error adding product");
+//       }
+//     } catch (err) {
+//       console.error("Error:", err);
+//       alert("Failed to add product");
+//     }
 //   };
 
 //   return (
 //     <div className="form-overlay">
 //       <div className="add-product-form">
-//         <h2>Add New Product</h2>
+//         <h2>{product ? "Edit Product" : "Add New Product"}</h2>
 //         <form onSubmit={handleSubmit}>
-//           {/* Product Name */}
 //           <div className="form-group">
 //             <label>Product Name</label>
 //             <input
 //               type="text"
 //               name="name"
-//               placeholder="e.g., Carrots"
+//               value={newProduct.name}
 //               onChange={handleInputChange}
 //               required
 //             />
 //           </div>
 
-//           {/* Category */}
 //           <div className="form-group">
 //             <label>Category</label>
-//             <select name="category" onChange={handleInputChange} required>
+//             <select
+//               name="category"
+//               value={newProduct.category}
+//               onChange={handleInputChange}
+//               required
+//             >
 //               <option value="">-- Select Category --</option>
 //               <option value="Vegetables">Vegetables</option>
 //               <option value="Fruits">Fruits</option>
@@ -74,38 +139,30 @@
 //             </select>
 //           </div>
 
-//           {/* Description */}
 //           <div className="form-group">
 //             <label>Description</label>
 //             <textarea
 //               name="description"
-//               placeholder="Describe your product..."
+//               value={newProduct.description}
 //               onChange={handleInputChange}
 //               required
 //             />
 //           </div>
 
-//           {/* Image Upload */}
 //           <div className="form-group">
 //             <label>Upload Product Image</label>
 //             <input type="file" accept="image/*" onChange={handleImageUpload} />
-//             {imagePreview && (
-//               <img
-//                 src={imagePreview}
-//                 alt="Preview"
-//                 className="preview-image"
-//               />
-//             )}
+//             {uploading && <p>Uploading image...</p>}
+//             {imagePreview && <img src={imagePreview} alt="Preview" className="preview-image" />}
 //           </div>
 
-//           {/* Price & Quantity */}
 //           <div className="form-row">
 //             <div className="form-group">
 //               <label>Price per Unit (₹)</label>
 //               <input
 //                 type="number"
 //                 name="price"
-//                 placeholder="e.g., 50"
+//                 value={newProduct.price}
 //                 onChange={handleInputChange}
 //                 required
 //               />
@@ -115,29 +172,27 @@
 //               <input
 //                 type="number"
 //                 name="quantity"
-//                 placeholder="e.g., 100 kg"
+//                 value={newProduct.quantity}
 //                 onChange={handleInputChange}
 //                 required
 //               />
 //             </div>
 //           </div>
 
-//           {/* Contact */}
 //           <div className="form-group">
 //             <label>Contact Info</label>
 //             <input
 //               type="text"
 //               name="contact"
-//               placeholder="Mobile / Email"
+//               value={newProduct.contact}
 //               onChange={handleInputChange}
 //               required
 //             />
 //           </div>
 
-//           {/* Submit & Cancel */}
 //           <div className="form-actions">
-//             <button type="submit" className="submit-btn">
-//               Submit
+//             <button type="submit" className="submit-btn" disabled={uploading}>
+//               {uploading ? "Uploading..." : product ? "Update" : "Submit"}
 //             </button>
 //             <button type="button" className="cancel-btn" onClick={onClose}>
 //               Cancel
@@ -151,9 +206,13 @@
 
 // export default AddProduct;
 import React, { useState, useEffect } from "react";
-import "./AddProduct.css";
+import styles from "./AddProduct.module.css";
+import { storage } from "../../firebaseConfig";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
-const AddProduct = ({ onAddProduct, onClose, product, farmerId }) => {
+const AddProduct = ({ product = null, onClose }) => {
+  const farmerId = localStorage.getItem("farmerId");
+
   const [newProduct, setNewProduct] = useState({
     name: "",
     category: "",
@@ -165,8 +224,8 @@ const AddProduct = ({ onAddProduct, onClose, product, farmerId }) => {
   });
 
   const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
-  // Pre-fill form fields when editing a product
   useEffect(() => {
     if (product) {
       setNewProduct({
@@ -180,7 +239,6 @@ const AddProduct = ({ onAddProduct, onClose, product, farmerId }) => {
       });
       setImagePreview(product.image || null);
     } else {
-      // Reset fields when adding a new product
       setNewProduct({
         name: "",
         category: "",
@@ -200,51 +258,84 @@ const AddProduct = ({ onAddProduct, onClose, product, farmerId }) => {
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setNewProduct({ ...newProduct, image: imageUrl });
-      setImagePreview(imageUrl);
-    }
+    if (!file) return;
+
+    setUploading(true);
+    const storageRef = ref(storage, `product_images/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      null,
+      (error) => {
+        console.error("Upload error:", error);
+        alert("Image upload failed");
+        setUploading(false);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setNewProduct((prev) => ({ ...prev, image: downloadURL }));
+          setImagePreview(downloadURL);
+          setUploading(false);
+        });
+      }
+    );
   };
 
-  useEffect(() => {
-    return () => {
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
-    };
-  }, [imagePreview]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { name, price, quantity, contact, category, description } = newProduct;
-    if (!name || !price || !quantity || !contact || !category || !description) {
+    const { name, price, quantity, contact, category, description, image } = newProduct;
+
+    if (!name || !price || !quantity || !contact || !category || !description || !image) {
       alert("Please fill all required fields!");
       return;
     }
-    onAddProduct(newProduct);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/addproduct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newProduct, farmerId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Product added successfully!");
+        if (onClose) onClose();
+      } else {
+        alert(result.message || "Error adding product");
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Failed to add product");
+    }
   };
 
   return (
-    <div className="form-overlay">
-      <div className="add-product-form">
+    <div className={styles.formOverlay}>
+      <div className={styles.addProductForm}>
         <h2>{product ? "Edit Product" : "Add New Product"}</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label>Product Name</label>
             <input
               type="text"
               name="name"
               value={newProduct.name}
-              placeholder="e.g., Carrots"
               onChange={handleInputChange}
               required
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label>Category</label>
-            <select name="category" value={newProduct.category} onChange={handleInputChange} required>
+            <select
+              name="category"
+              value={newProduct.category}
+              onChange={handleInputChange}
+              required
+            >
               <option value="">-- Select Category --</option>
               <option value="Vegetables">Vegetables</option>
               <option value="Fruits">Fruits</option>
@@ -252,63 +343,78 @@ const AddProduct = ({ onAddProduct, onClose, product, farmerId }) => {
             </select>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label>Description</label>
             <textarea
               name="description"
               value={newProduct.description}
-              placeholder="Describe your product..."
               onChange={handleInputChange}
               required
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label>Upload Product Image</label>
             <input type="file" accept="image/*" onChange={handleImageUpload} />
-            {imagePreview && <img src={imagePreview} alt="Preview" className="preview-image" />}
+            {uploading && <p>Uploading image...</p>}
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className={styles.previewImage}
+              />
+            )}
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
               <label>Price per Unit (₹)</label>
               <input
                 type="number"
                 name="price"
                 value={newProduct.price}
-                placeholder="e.g., 50"
                 onChange={handleInputChange}
                 required
               />
             </div>
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label>Quantity Available</label>
               <input
                 type="number"
                 name="quantity"
                 value={newProduct.quantity}
-                placeholder="e.g., 100 kg"
                 onChange={handleInputChange}
                 required
               />
             </div>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label>Contact Info</label>
             <input
               type="text"
               name="contact"
               value={newProduct.contact}
-              placeholder="Mobile / Email"
               onChange={handleInputChange}
               required
             />
           </div>
 
-          <div className="form-actions">
-            <button type="submit" className="submit-btn">{product ? "Update" : "Submit"}</button>
-            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
+          <div className={styles.formActions}>
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={uploading}
+            >
+              {uploading ? "Uploading..." : product ? "Update" : "Submit"}
+            </button>
+            <button
+              type="button"
+              className={styles.cancelBtn}
+              onClick={onClose}
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>
