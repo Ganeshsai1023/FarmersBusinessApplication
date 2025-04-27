@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./ConsumerLogin.css";
+import styles from "./ConsumerLogin.module.css";
 
 const ConsumerLogin = () => {
+  const navigate = useNavigate();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,8 +43,9 @@ const ConsumerLogin = () => {
       });
 
       if (res.data.success) {
-        alert("Login successful!");
-        // Redirect or store token if needed
+        localStorage.setItem("consumerId", res.data.consumer.consumerId)
+        //console.log(localStorage.getItem("consumerId"))
+        navigate("/consumer"); // ✅ Corrected
       } else {
         alert(res.data.message || "Invalid email or password.");
       }
@@ -67,8 +69,7 @@ const ConsumerLogin = () => {
       }
 
       const otpRes = await axios.post("http://localhost:5000/api/send-otpCons", { email });
-      console.log(otpRes);
-      if (otpRes.data.message == "OTP sent successfully") {
+      if (otpRes.data.message === "OTP sent successfully") {
         alert(`OTP sent to ${email}`);
         setShowForgotPassword(true);
         setOtpExpired(false);
@@ -93,8 +94,8 @@ const ConsumerLogin = () => {
         email,
         otp: enteredOtp,
       });
-      console.log(res)
-      if (res.data.message == "OTP verified successfully") {
+
+      if (res.data.message === "OTP verified successfully") {
         alert("OTP verified! You can now reset your password.");
         setIsOtpVerified(true);
         setTimer(0);
@@ -135,20 +136,18 @@ const ConsumerLogin = () => {
   };
 
   const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
 
   return (
-    <div className="app-container">
-      <div className="login-page">
+    <div className={styles.appContainer}>
+      <div className={styles.consumerLoginPage}>
         <h1>Consumer Login</h1>
 
         {!showForgotPassword ? (
-          <form className="login-form" onSubmit={handleLogin}>
+          <form className={styles.loginForm} onSubmit={handleLogin}>
             <input
               type="text"
               placeholder="Email"
@@ -164,20 +163,20 @@ const ConsumerLogin = () => {
               required
             />
             <button type="submit">Login</button>
-            <p className="forgot-password">
+            <p className={styles.forgotPassword}>
               <button type="button" onClick={handleForgotPassword}>
                 Forgot Password?
               </button>
             </p>
           </form>
         ) : (
-          <div className="reset-container">
-            <h3 className="reset-title">Reset Password</h3>
+          <div className={styles.resetContainer}>
+            <h3 className={styles.resetTitle}>Reset Password</h3>
             {!isOtpVerified ? (
               <>
                 <input
                   type="text"
-                  className="reset-input"
+                  className={styles.resetInput}
                   placeholder="Enter OTP"
                   value={enteredOtp}
                   onChange={(e) => setEnteredOtp(e.target.value)}
@@ -185,12 +184,12 @@ const ConsumerLogin = () => {
                   disabled={otpExpired}
                 />
                 {otpExpired ? (
-                  <p className="error-text">OTP expired. Please request a new one.</p>
+                  <p className={styles.errorText}>OTP expired. Please request a new one.</p>
                 ) : (
-                  <p className="timer-text">OTP valid for: {formatTime(timer)}</p>
+                  <p className={styles.timerText}>OTP valid for: {formatTime(timer)}</p>
                 )}
                 <button
-                  className="reset-button"
+                  className={styles.resetButton}
                   onClick={handleOtpSubmit}
                   disabled={otpExpired}
                 >
@@ -201,7 +200,7 @@ const ConsumerLogin = () => {
               <>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="reset-input"
+                  className={styles.resetInput}
                   placeholder="New Password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -209,7 +208,7 @@ const ConsumerLogin = () => {
                 />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="reset-input"
+                  className={styles.resetInput}
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -217,12 +216,12 @@ const ConsumerLogin = () => {
                 />
                 <button
                   type="button"
-                  className="reset-button toggle-button"
+                  className={`${styles.resetButton} ${styles.toggleButton}`}
                   onClick={() => setShowPassword((prev) => !prev)}
                 >
                   {showPassword ? "Hide Password" : "Show Password"}
                 </button>
-                <button className="reset-button" onClick={handleResetPassword}>
+                <button className={styles.resetButton} onClick={handleResetPassword}>
                   Reset Password
                 </button>
               </>
@@ -230,13 +229,13 @@ const ConsumerLogin = () => {
           </div>
         )}
 
-        <Link to="/" className="back-link">
+        <Link to="/" className={styles.backLink}>
           Back to Home
         </Link>
 
-        <p className="register-link">
+        <p className={styles.registerLink}>
           New user?{" "}
-          <Link to="/consumer-register" className="reg-button">
+          <Link to="/consumer-register" className={styles.regButton}>
             Register here
           </Link>
         </p>

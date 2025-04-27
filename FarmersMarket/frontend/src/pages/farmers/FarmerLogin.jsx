@@ -30,7 +30,7 @@ const FarmerLogin = () => {
         document.querySelector(`.${styles["reset-input"]}[type='password']`)?.focus();
       }, 100);
     }
-  }, [isOtpVerified]);
+  }, [isOtpVerified, styles]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -63,7 +63,7 @@ const FarmerLogin = () => {
     try {
       const emailCheckRes = await axios.post("http://localhost:5000/api/check-emailfarm", { email });
 
-      if (emailCheckRes.data.message !== "Email exists") {
+      if (!emailCheckRes.data || emailCheckRes.data.message !== "Email exists") {
         setError("Email not found. Please check and try again.");
         return;
       }
@@ -101,6 +101,11 @@ const FarmerLogin = () => {
   };
 
   const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -129,7 +134,6 @@ const FarmerLogin = () => {
   };
 
   return (
-
     <div className={styles["app-container"]}>
       <div className={styles["farmer-logins-container"]}>
         <h1>Farmer Login</h1>
@@ -150,6 +154,7 @@ const FarmerLogin = () => {
                   placeholder="Enter OTP"
                   value={enteredOtp}
                   onChange={(e) => setEnteredOtp(e.target.value)}
+                  required
                 />
                 <button className={styles["reset-button"]} onClick={handleOtpSubmit}>
                   Verify OTP
@@ -163,6 +168,7 @@ const FarmerLogin = () => {
                   placeholder="New Password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
+                  required
                 />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -170,6 +176,7 @@ const FarmerLogin = () => {
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
                 />
                 <button
                   type="button"

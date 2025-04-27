@@ -7,6 +7,12 @@
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for better visibility */
     overflow-y: auto;
   }
+  .notification-background {
+    background: url('/farm-login-bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    padding: 20px;
+  }
   
   .notifications-title {
     font-size: 24px;

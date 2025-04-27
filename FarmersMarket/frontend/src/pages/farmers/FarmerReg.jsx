@@ -12,6 +12,8 @@ const FarmerReg = () => {
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
     const [aadharNo, setAadharNo] = useState("");
+    const [accountNumber, setAccountNumber] = useState("");
+    const [ifscCode, setIfscCode] = useState("");
 
     // OTP and flow states
     const [otp, setOtp] = useState("");
@@ -20,7 +22,7 @@ const FarmerReg = () => {
     const [otpTimer, setOtpTimer] = useState(120);
     const [timerInterval, setTimerInterval] = useState(null);
 
-    // Other UI states
+    // UI feedback
     const [error, setError] = useState("");
     const [serverMessage, setServerMessage] = useState("");
     const [isRegistered, setIsRegistered] = useState(false);
@@ -48,7 +50,7 @@ const FarmerReg = () => {
     const handleRequestOtp = async (e) => {
         e.preventDefault();
 
-        if (!fullName || !email || !password || !confirmPassword || !phone || !address || !aadharNo) {
+        if (!fullName || !email || !password || !confirmPassword || !phone || !address || !aadharNo || !accountNumber || !ifscCode) {
             setError("Please fill in all fields.");
             return;
         }
@@ -65,13 +67,12 @@ const FarmerReg = () => {
         }
 
         try {
-            console.log(email)
             const checkRes = await axios.post("http://localhost:5000/api/check-emailfarmr", { email });
             if (checkRes.data.exists) {
                 setError("This email is already registered. Please login instead.");
                 setServerMessage("");
             } else {
-                const otpRes = await axios.get("http://localhost:5000/api/request-otp", { email });
+                const otpRes = await axios.post("http://localhost:5000/api/request-otp", { email });
 
                 setServerOtp(otpRes.data.otp);
                 setShowOtpField(true);
@@ -116,6 +117,8 @@ const FarmerReg = () => {
                 phone,
                 address,
                 aadharNo,
+                accountNumber,
+                ifscCode,
             };
 
             const res = await axios.post("http://localhost:5000/api/addfarmer", formData);
@@ -129,6 +132,7 @@ const FarmerReg = () => {
         }
     };
 
+    // Cleanup timer
     useEffect(() => {
         return () => clearInterval(timerInterval);
     }, [timerInterval]);
@@ -147,6 +151,8 @@ const FarmerReg = () => {
                         <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" required />
                         <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" required />
                         <input type="text" value={aadharNo} onChange={(e) => setAadharNo(e.target.value)} placeholder="Aadhar Number" required />
+                        <input type="text" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder="Account Number" required />
+                        <input type="text" value={ifscCode} onChange={(e) => setIfscCode(e.target.value)} placeholder="IFSC Code" required />
 
                         {error && (
                             <p className={styles["error-message"]}>

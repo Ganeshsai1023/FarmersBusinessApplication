@@ -86,7 +86,6 @@ const loginConsumer = async (req, res) => {
 // 👨‍💼 Admin Login
 const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
-  console.log(username, password);
   if (!username || !password) {
     return res.status(200).json({
       success: false,
@@ -96,7 +95,6 @@ const loginAdmin = async (req, res) => {
 
   try {
     const admin = await Admins.findOne({ username, password });
-    console.log(admin);
     if (!admin) {
       return res.status(200).json({
         success: false,

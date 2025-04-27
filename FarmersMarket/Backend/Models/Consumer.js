@@ -12,6 +12,7 @@ const consumerSchema = new mongoose.Schema({
   otp: { type: String }, // OTP for email verification
   register_in: { type: Date, default: Date.now },
   otpExpiresAt: { type: Date },
+  address: String,
 });
 
 // Generate Consumer ID before saving

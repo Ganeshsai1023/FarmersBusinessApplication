@@ -4,7 +4,7 @@ const users = require("../../Models/Consumer");
 // 📋 Display all farmers with name, ID, and verification status
 const DisplayFarmers = async (req, res) => {
   try {
-    const farmers = await Farmer.find({}, "fullName farmerId isVerified"); // Only selected fields
+    const farmers = await Farmer.find({}, "fullName farmerId isVerified");
     res.status(200).json({ farmers });
   } catch (error) {
     console.error("Error fetching farmers:", error);
@@ -15,7 +15,7 @@ const DisplayFarmers = async (req, res) => {
 // 📋 Display all user details
 const DisplayUsers = async (req, res) => {
   try {
-    const allUsers = await users.find(); // Returns everything
+    const allUsers = await users.find();
     res.status(200).json({ users: allUsers });
   } catch (error) {
     console.error("Error fetching users:", error);

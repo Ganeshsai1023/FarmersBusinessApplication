@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./AdminLogin.css";
+import styles from "./AdminLogin.module.css";
 
 const AdminLogin = () => {
   const { id } = useParams();
@@ -156,14 +156,15 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleLogin}>
+    <div className={styles.loginContainer}>
+      <form className={styles.loginForm} onSubmit={handleLogin}>
+        <h1> Admin Login </h1>
         {!showOtpField && (
           <>
             <input
               type="text"
               placeholder="Username"
-              className="input-field"
+              className={styles.inputField}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -171,7 +172,7 @@ const AdminLogin = () => {
             <input
               type="password"
               placeholder="Password"
-              className="input-field"
+              className={styles.inputField}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -179,23 +180,23 @@ const AdminLogin = () => {
           </>
         )}
 
-        {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
-        {message && <p style={{ color: "green" }}>{message}</p>}
+        {errorMsg && <p className={styles.errorMsg}>{errorMsg}</p>}
+        {message && <p className={styles.successMsg}>{message}</p>}
 
         {!showForgotPassword && !showOtpField && (
           <>
-            <button type="submit" className="login-button">
+            <button type="submit" className={styles.loginButton}>
               LOGIN
             </button>
-            <button type="button" onClick={handleForgotPassword} className="forgot-password-button">
+            <button type="button" onClick={handleForgotPassword} className={styles.forgotPasswordButton}>
               Forgot Password?
             </button>
-            <p className="new-user">New User? Contact the system administrator.</p>
+            <p className={styles.newUser}>New User? Contact the system administrator.</p>
           </>
         )}
 
         {showForgotPassword && (
-          <div className="otp-reset-box">
+          <div className={styles.otpResetBox}>
             {!isOtpVerified ? (
               timer > 0 ? (
                 <>
@@ -203,24 +204,24 @@ const AdminLogin = () => {
                     ref={otpInputRef}
                     type="text"
                     placeholder="Enter OTP"
-                    className="input-field"
+                    className={styles.inputField}
                     value={enteredOtp}
                     onChange={(e) => setEnteredOtp(e.target.value)}
                     required
                   />
-                  <button type="button" className="login-button" onClick={handleOtpSubmit}>
+                  <button type="button" className={styles.loginButton} onClick={handleOtpSubmit}>
                     Verify OTP
                   </button>
-                  <p className="timer-text">OTP valid for: {formatTime(timer)}</p>
+                  <p className={styles.timerText}>OTP valid for: {formatTime(timer)}</p>
                 </>
               ) : (
                 <>
-                  <p className="timer-text" style={{ color: "red", fontWeight: "bold" }}>
+                  <p className={styles.timerText} style={{ color: "red", fontWeight: "bold" }}>
                     OTP expired. Please retry.
                   </p>
                   <button
                     type="button"
-                    className="login-button"
+                    className={styles.loginButton}
                     onClick={() => {
                       setShowForgotPassword(false);
                       setShowOtpField(false);
@@ -240,7 +241,7 @@ const AdminLogin = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="New Password"
-                  className="input-field"
+                  className={styles.inputField}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
@@ -248,19 +249,19 @@ const AdminLogin = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Confirm Password"
-                  className="input-field"
+                  className={styles.inputField}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
                 <button
                   type="button"
-                  className="toggle-button"
+                  className={styles.toggleButton}
                   onClick={() => setShowPassword((prev) => !prev)}
                 >
                   {showPassword ? "Hide Password" : "Show Password"}
                 </button>
-                <button type="button" className="login-button" onClick={handleResetPassword}>
+                <button type="button" className={styles.loginButton} onClick={handleResetPassword}>
                   Reset Password
                 </button>
               </>

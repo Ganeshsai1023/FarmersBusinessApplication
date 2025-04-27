@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { format } from "timeago.js";
 import axios from "axios";
 import styles from "./Product.module.css";
 import Navbar from "../../Components/Navbar";
 import AddProduct from "./AddProduct"; // Ensure this path is correct
+import { storage } from "../../firebaseConfig.js"
+import { ref, deleteObject } from "firebase/storage"
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -41,9 +44,29 @@ const Products = () => {
 
   const handleDelete = async (id) => {
     try {
+      // Step 1: Get the image URL
+      const imageRes = await axios.get(`http://localhost:5000/api/products/image/${id}`);
+      const imageUrl = imageRes.data.imageUrl;
+
+      // Step 2: Extract the path from the URL
+      if (imageUrl) {
+        const baseUrl = "https://firebasestorage.googleapis.com/v0/b/";
+        const startIndex = imageUrl.indexOf("/o/") + 3;
+        const endIndex = imageUrl.indexOf("?");
+
+        const path = decodeURIComponent(imageUrl.substring(startIndex, endIndex));
+        const imageRef = ref(storage, path);
+
+        // Step 3: Delete from Firebase
+        await deleteObject(imageRef);
+        console.log("Image deleted from Firebase");
+      }
+
+      // Step 4: Delete the product from MongoDB
       await axios.delete(`http://localhost:5000/api/products/${id}`);
-      fetchProducts(); // Refresh the product list after deleting a product
+      fetchProducts();
     } catch (err) {
+      console.error("Failed to delete product:", err);
       alert("Failed to delete product.");
     }
   };
@@ -91,6 +114,18 @@ const Products = () => {
               <p className={styles.price}>
                 Price: <span>₹{product.price}</span>
               </p>
+              <p className={styles.price}>
+                Available stock: <span>{product.quantity}</span>
+              </p>
+              <p className={styles.price}>
+                Product status: <span>{product.isVerified}</span>
+              </p>
+              <p className={styles.price}>
+                Product Id: <span>{product.productId}</span>
+              </p>
+              <p className={styles.price}>
+                Uploaded at : <span>{format(product.updatedAt)}</span></p>
+
               <p className={styles.stockStatus}>{product.stock}</p>
               <div className={styles.productActions}>
                 <button className={styles.editBtn} onClick={() => handleEdit(product)}>

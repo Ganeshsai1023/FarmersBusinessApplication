@@ -23,6 +23,14 @@ const farmerSchema = new mongoose.Schema({
     default: "Pending",
   },
   register_in: { type: Date, default: Date.now },
+  accountNumber: {
+    type: String,
+    required: true, // Add validation if needed
+  },
+  ifscCode: {
+    type: String,
+    required: true, // Add validation if needed
+  },
 });
 
 // Generate Farmer ID before saving

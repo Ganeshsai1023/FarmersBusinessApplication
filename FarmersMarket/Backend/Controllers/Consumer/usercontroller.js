@@ -2,7 +2,7 @@ const express = require("express");
 const consumerModel = require("../../Models/Consumer");
 
 const addUser = async (req, res) => {
-  const { fullName, email, password, phone } = req.body;
+  const { fullName, email, password, phone, address } = req.body;
 
   try {
     // Check if the email already exists
@@ -17,6 +17,7 @@ const addUser = async (req, res) => {
       email,
       password,
       phone,
+      address,
     });
     return res.status(201).json({ message: "Data Inserted", data }); // Exit after sending response
   } catch (err) {

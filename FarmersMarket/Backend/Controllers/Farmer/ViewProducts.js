@@ -4,7 +4,7 @@ const Product = require("../../Models/Products");
 const getProductsByFarmer = async (req, res) => {
   try {
     const { farmerId } = req.body; // Accept farmerId from request body
-    console.log(farmerId);
+    //console.log(farmerId);
     const products = await Product.find({ farmerId });
     console.log(products);
     res.status(200).json(products);

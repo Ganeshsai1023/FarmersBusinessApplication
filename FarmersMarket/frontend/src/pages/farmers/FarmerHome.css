@@ -1,14 +1,7 @@
-/* Reset & Base */
-body {
-    margin: 0;
-    padding: 0;
-    background: none !important;
-    overflow: auto;
-  }
-  
+
   /* Farmer Home Container */
   .farmer-home-container {
-    background: url("/assets/farmer-bg.jpg") no-repeat center center fixed;
+    background: url("/farm-login-bg.jpg") no-repeat center center fixed;
     background-size: cover;
     min-height: 100vh;
     width: 100%;
