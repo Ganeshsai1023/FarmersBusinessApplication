@@ -79,7 +79,7 @@ const ConsumerCart = () => {
             });
 
             const options = {
-                key: 'RAZOR_PAY_API_kEY',
+                key: 'rzp_test_mY1cihVNUQlMBf',
                 amount: amount * 100,
                 currency: "INR",
                 name: "AgriBridge",
@@ -145,7 +145,7 @@ const ConsumerCart = () => {
     return (
         <Container sx={{ py: 4 }}>
             <Typography variant="h4" gutterBottom>
-                Shopping Cart
+                Shopping Car
             </Typography>
 
             <Grid container spacing={4}>
